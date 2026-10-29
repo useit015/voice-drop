@@ -41,7 +41,7 @@ const isMobile = () => mobile.matches
 const S = {
   wa: { status: 'connecting' }, offline: false, people: [], peopleLoaded: false, peopleKey: '', meJid: null,
   recipient: store.get('vd.to', null), pinned: new Set(), favs: [], sent: [], titles: new Map(), chats: new Map(),
-  msgs: [], msgMore: false, msgToken: 0, olderBusy: false, importPrompt: false,
+  msgs: [], msgMore: false, msgToken: 0, olderBusy: false, histDone: new Set(), histAdded: 0,
   filter: 'all', pq: '', showAll: false, rows: [], kbd: -1,
   src: store.get('vd.src', null), q: '', page: 0, hasMore: false, loading: false, token: 0, items: [], tiles: [], hl: 0,
   expanded: false, drawer: store.get('vd.drawer', !isMobile()), lastField: 'sound',
@@ -352,13 +352,15 @@ function bubbleFor(m, { fresh, sender } = {}) {
 }
 
 function olderRow() {
-  if (!S.recipient || S.msgMore) return null
-  const empty = !S.msgs.length
-  return h('div', { class: 'older' },
-    h('span', {}, empty ? 'No messages are stored for this chat yet.' : 'That is everything stored for this chat.'),
-    h('div', { class: 'links' },
-      !empty && h('button', { type: 'button', class: S.olderBusy ? 'spin' : '', disabled: S.olderBusy, onclick: askPhone }, S.olderBusy ? [icon('circle-notch'), ' Asking your phone'] : 'Get earlier messages from phone'),
-      h('button', { type: 'button', onclick: openImport }, 'Import full history')))
+  const key = keyOf(S.recipient)
+  if (!key || S.msgMore) return null
+  if (S.olderBusy) {
+    return h('div', { class: 'older' }, h('span', { class: 'spin' }, icon('circle-notch'), ` Loading earlier messages${S.histAdded ? ` (${S.histAdded} so far)` : ''}`))
+  }
+  if (S.histDone.has(key)) return h('div', { class: 'older' }, h('span', {}, S.msgs.length ? 'Start of the conversation' : 'No messages in the last 3 months'))
+  return h('div', { class: 'older' }, h('div', { class: 'links' },
+    h('button', { type: 'button', onclick: () => loadEarlier() }, 'Load earlier messages'),
+    h('button', { type: 'button', onclick: () => loadEarlier({ all: true }) }, 'Load everything')))
 }
 
 // opts: { bottom } jump to newest; { prepend } keep the view steady after older messages were added; { fresh } id of a new message
@@ -390,17 +392,21 @@ function renderMsgs(opts = {}) {
   else body.scrollTop = body.scrollHeight - fromBottom
 }
 
-async function loadMessages(reset = true) {
+async function loadMessages(reset = true, limit = 60) {
   const key = keyOf(S.recipient)
   if (!key) { S.msgs = []; S.msgMore = false; renderMsgs(); return }
   const token = reset ? ++S.msgToken : S.msgToken
-  const params = new URLSearchParams({ jid: key, limit: 60 })
+  const params = new URLSearchParams({ jid: key, limit })
   if (!reset && S.msgs[0]) { params.set('before', S.msgs[0].ts); params.set('beforeId', S.msgs[0].id) }
   try {
     const res = await api(`/api/messages?${params}`)
     if (token !== S.msgToken) return
     S.msgMore = res.more
-    if (reset) { S.msgs = res.messages; renderMsgs({ bottom: true }) } else { S.msgs = [...res.messages, ...S.msgs]; renderMsgs({ prepend: true }) }
+    if (reset) {
+      S.msgs = res.messages
+      renderMsgs({ bottom: true })
+      if (S.msgs.length < 25 && !S.msgMore && S.wa.status === 'open') loadEarlier() // looks thin: fill it from the phone
+    } else { S.msgs = [...res.messages, ...S.msgs]; renderMsgs({ prepend: true }) }
   } catch { /* leaves the conversation as it is */ }
 }
 
@@ -418,30 +424,35 @@ async function refreshMessages() {
   } catch { /* next event retries */ }
 }
 
-async function askPhone() {
+// Older messages: our own store first, then ask the phone for 50 more (repeatedly with `all`).
+async function loadEarlier({ all = false } = {}) {
   const key = keyOf(S.recipient)
-  const before = S.msgs.length
+  if (!key || S.olderBusy || S.histDone.has(key)) return
   S.olderBusy = true
-  renderMsgs()
+  S.histAdded = 0
+  renderMsgs({ prepend: true })
   try {
-    await post('/api/history', { jid: key })
+    for (;;) {
+      if (S.msgMore) { await loadMessages(false, all ? 500 : 60); if (!all) break; continue }
+      const { added } = await post('/api/history', { jid: key, count: all ? 500 : 200 })
+      if (key !== keyOf(S.recipient)) return // switched chats meanwhile
+      if (!added) { S.histDone.add(key); break }
+      S.histAdded += added
+      await (S.msgs.length ? loadMessages(false, all ? 500 : 60) : loadMessages(true))
+      if (!all) break
+    }
   } catch (e) {
+    toast(e.message, { kind: 'err' })
+  } finally {
     S.olderBusy = false
-    renderMsgs()
-    return toast(e.message, { kind: 'err' })
+    S.histAdded = 0
+    if (key === keyOf(S.recipient)) renderMsgs({ prepend: true })
   }
-  setTimeout(async () => {
-    await refreshMessages()
-    S.olderBusy = false
-    renderMsgs()
-    if (S.msgs.length === before) toast('Your phone had nothing older to send for this chat', { ms: 5000 })
-  }, 7000)
 }
 
 $('#chatBody').addEventListener('scroll', (e) => {
-  if (e.target.scrollTop < 100 && S.msgMore && !loadingOlder) { loadingOlder = true; loadMessages(false).finally(() => { loadingOlder = false }) }
+  if (e.target.scrollTop < 120) loadEarlier()
 })
-let loadingOlder = false
 
 function addMessage(m) {
   if (S.msgs.some((x) => x.id === m.id)) return
@@ -603,6 +614,7 @@ function renderPeople() {
     if (pinned.length) { title('Pinned'); pinned.forEach(add) }
     const recent = [...S.chats.values()].filter((c) => c.jid !== S.wa.me?.jid && !S.pinned.has(c.jid)).slice(0, 10).map(chatPerson)
     if (recent.length) { title('Recent'); recent.forEach(add) }
+    else if (S.wa.history?.active) frag.append(note('arrows-clockwise', 'Syncing your recent chats. They appear here as they arrive.'))
 
     const groups = S.people.filter((p) => p.kind === 'group').sort((a, b) => a._n.localeCompare(b._n))
     if (groups.length) { title('Groups'); groups.forEach(add) }
@@ -914,12 +926,12 @@ function onEvent(ev) {
     if (m) { m.text = ev.text; renderMsgs() }
   } else if (ev.t === 'history') {
     loadChatsSoon()
-    refreshMessages()
+    if (!S.olderBusy) refreshMessages()
   } else if (ev.t === 'progress') {
     const was = S.wa.history?.active
     S.wa.history = ev.history
     renderMeLine()
-    if (was && !ev.history.active) { toast('History import finished', { ms: 6000 }); loadChats(); refreshMessages() }
+    if (was && !ev.history.active) { toast('Recent chats synced', { ms: 5000 }); loadChats() }
   }
 }
 
@@ -931,8 +943,6 @@ function connectEvents() {
 }
 
 // ---------- connection state ----------
-
-function openImport() { S.importPrompt = true; renderGate() }
 
 function renderGate() {
   const gate = $('#gate')
@@ -947,21 +957,13 @@ function renderGate() {
       h('h1', {}, 'Link WhatsApp'),
       S.wa.qr ? h('img', { src: S.wa.qr, alt: 'WhatsApp link QR code', width: 244, height: 244 }) : h('div', { class: 'qr-skel' }),
       h('ol', {}, h('li', {}, 'Open WhatsApp on your phone'), h('li', {}, 'Go to Settings, then Linked devices'), h('li', {}, 'Tap Link a device and scan this code')),
-      S.wa.history?.active && h('p', {}, 'After linking, your phone sends your message history. It can take a few minutes.'))
+      h('p', {}, 'After linking, your phone sends your recent chats. It takes about a minute.'))
   } else if (s === 'logged-out') {
     gate.hidden = false
     card.replaceChildren(
       h('h1', {}, 'WhatsApp was unlinked'),
       h('p', {}, 'This device was removed from Linked devices. Link it again to keep sending.'),
       h('button', { class: 'btn', type: 'button', onclick: async () => { await post('/api/relink').catch(() => {}); poll() } }, 'Link again'))
-  } else if (S.importPrompt) {
-    gate.hidden = false
-    card.replaceChildren(
-      h('h1', {}, 'Import full history'),
-      h('p', {}, 'WhatsApp only sends your message history when a device is first linked. This links the app again as a desktop device: you scan one QR code, then your phone sends your chats. It can take several minutes. Everything stays on this computer.'),
-      h('div', { class: 'gate-actions' },
-        h('button', { class: 'btn', type: 'button', onclick: async () => { S.importPrompt = false; await post('/api/relink', { history: true }).catch((e) => toast(e.message, { kind: 'err' })); poll() } }, 'Re-link and import'),
-        h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.importPrompt = false; renderGate() } }, 'Cancel')))
   } else {
     gate.hidden = true
   }
@@ -969,7 +971,7 @@ function renderGate() {
 
 function renderMeLine() {
   const { status, syncing, me, history } = S.wa
-  $('#meLine').textContent = history?.active ? `Importing history ${history.progress ?? 0}% · ${(history.imported ?? 0).toLocaleString()} messages`
+  $('#meLine').textContent = history?.active ? `Syncing recent chats${history.progress ? ` ${history.progress}%` : ''} · ${(history.imported ?? 0).toLocaleString()} messages`
     : status === 'open' ? (syncing ? 'Syncing contacts...' : `Connected as +${(me?.jid ?? '').replace(/@.*/, '').replace(/\D/g, '')}`)
       : status === 'connecting' ? 'Connecting to WhatsApp...' : 'Not connected'
   $('#refreshPeople').classList.toggle('spin', !!syncing)
@@ -1077,7 +1079,6 @@ $('#peopleSearch').addEventListener('keydown', (e) => {
 })
 
 $('#expand').addEventListener('click', toggleExpand)
-$('#importBtn').addEventListener('click', () => (S.wa.history?.active ? toast('An import is already running', { ms: 3000 }) : openImport()))
 $('#refreshPeople').addEventListener('click', async () => {
   $('#refreshPeople').classList.add('spin')
   await post('/api/people/refresh').catch((e) => toast(e.message, { kind: 'err' }))

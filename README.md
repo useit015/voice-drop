@@ -21,10 +21,9 @@ Opens http://127.0.0.1:4877. First run shows a QR code: WhatsApp > Linked device
 
 ### Message history
 
-The app stores every message it sees from now on in `data/messages.db`. Older history comes from the phone:
+When you link the app, your phone sends your recent chats once (about a minute). From then on every message the app sees is stored in `data/messages.db`. Older messages are pulled from the phone on demand: scroll to the top of a chat, or open a thin one, and the app asks your phone for 50 more at a time. "Load everything" keeps asking until your phone has nothing older. Nothing needs re-linking, and the phone must be online for older messages.
 
-- "Get earlier messages from phone" at the top of a chat asks your phone for 50 older messages. It needs at least one stored message in that chat to start from.
-- "Import full history" (also the clock button at the bottom left) re-links the app as a desktop device. You scan one QR code and your phone sends your chats, which can take several minutes. Attachments older than a few weeks may no longer exist on WhatsApp's servers and show as not available.
+Attachments older than a few weeks may no longer exist on WhatsApp's servers and show as not available. If linking or syncing seems stuck, `data/wa.log` (and http://127.0.0.1:4877/api/debug) lists the last connection and sync events.
 
 The server listens on localhost only and rejects requests from other sites. Stop it with Ctrl-C and wait for "saving session" to finish; killing it mid-write can corrupt the WhatsApp session in `./auth`.
 

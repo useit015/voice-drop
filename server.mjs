@@ -146,10 +146,9 @@ const routes = {
   },
 
   'POST /api/history': async (req) => {
-    const { jid } = await body(req)
+    const { jid, count } = await body(req)
     if (!isJid(jid)) throw new HttpError(400, 'bad jid')
-    try { await wa.fetchHistory(jid) } catch (e) { throw new HttpError(409, e.message) }
-    return { ok: true }
+    try { return { ok: true, ...(await wa.fetchHistory(jid, Math.min(Math.max(Number(count) || 50, 10), 500))) } } catch (e) { throw new HttpError(409, e.message) }
   },
 
   'GET /api/state': async () => state(),
@@ -222,7 +221,9 @@ const routes = {
 
   'POST /api/people/refresh': async () => { wa.refreshContacts(); return { ok: true } },
 
-  'POST /api/relink': async (req) => { const b = await body(req); await wa.relink({ history: b.history === true }); return { ok: true } },
+  'POST /api/relink': async () => { await wa.relink(); return { ok: true } },
+
+  'GET /api/debug': async () => ({ events: wa.events }),
 }
 
 const server = createServer(async (req, res) => {
