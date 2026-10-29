@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Voice Drop</title>
+  <link rel="stylesheet" href="/vendor/phosphor-regular/style.css">
+  <link rel="stylesheet" href="/vendor/phosphor-fill/style.css">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="app" id="app" data-screen="list">
+    <aside class="people" id="people" aria-label="Chats">
+      <header class="people-head">
+        <div class="people-title">
+          <div class="brand"><i class="ph-fill ph-waveform" aria-hidden="true"></i><span>Voice Drop</span></div>
+          <button class="icon-btn" id="refreshPeople" type="button" aria-label="Refresh contacts" title="Refresh contacts"><i class="ph ph-arrow-clockwise"></i></button>
+        </div>
+        <label class="field" for="peopleSearch">
+          <span class="sr-only">Search chats or enter a phone number</span>
+          <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+          <input id="peopleSearch" type="search" placeholder="Search name or number" autocomplete="off" spellcheck="false">
+          <kbd class="hide-mobile" aria-hidden="true">⌘K</kbd>
+        </label>
+        <div class="chips" id="chips" role="tablist" aria-label="Filter chats"></div>
+      </header>
+      <div class="people-list" id="peopleList" role="listbox" aria-label="Chats"></div>
+      <footer class="people-foot">
+        <span id="meLine" class="muted"></span>
+        <button class="icon-btn" id="importBtn" type="button" aria-label="Import full message history" title="Import full message history"><i class="ph ph-clock-counter-clockwise"></i></button>
+      </footer>
+    </aside>
+
+    <section class="chat" id="chat" data-expanded="false" data-drawer="open" aria-label="Conversation">
+      <header class="chat-head" id="chatHead"></header>
+      <div class="chat-body" id="chatBody"><div class="msgs" id="msgs"></div></div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <button type="button" class="icon-btn on" id="toggleDrawer" aria-label="Show sounds" aria-pressed="true" title="Sounds"><i class="ph-fill ph-waveform"></i></button>
+        <textarea id="textInput" rows="1" placeholder="Message" enterkeyhint="send" aria-label="Message"></textarea>
+        <button type="submit" class="send-btn" id="sendText" aria-label="Send message" disabled><i class="ph-fill ph-paper-plane-tilt"></i></button>
+      </form>
+
+      <section class="drawer" id="drawer" aria-label="Sounds">
+        <div class="drawer-top">
+          <label class="field big" for="soundSearch">
+            <span class="sr-only">Search sounds on myinstants</span>
+            <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+            <input id="soundSearch" type="search" placeholder="Search sounds" autocomplete="off" spellcheck="false" enterkeyhint="send">
+            <kbd class="hide-mobile" id="enterHint" aria-hidden="true">/</kbd>
+          </label>
+          <button class="icon-btn" id="expand" type="button" aria-label="Show more sounds" aria-pressed="false"><i class="ph ph-arrows-out-simple"></i></button>
+        </div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Sound lists"></div>
+        <div class="drawer-scroll" id="drawerScroll">
+          <div class="grid" id="grid"></div>
+          <div id="sentinel" class="sentinel"></div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <div class="gate" id="gate" hidden>
+    <div class="gate-card" id="gateCard"></div>
+  </div>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
