@@ -1,0 +1,444 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "6e1d3cd160b2237c4da97a1465666d50",
+    "entities": [
+      {
+        "tableName": "msgs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`jid` TEXT NOT NULL, `id` TEXT NOT NULL, `fromMe` INTEGER NOT NULL, `ts` INTEGER NOT NULL, `sender` TEXT, `push` TEXT, `kind` TEXT NOT NULL, `text` TEXT, `meta` TEXT, `raw` TEXT, `quoteId` TEXT, `quoteSender` TEXT, `quoteKind` TEXT, `quoteText` TEXT, `mentions` TEXT, `forwarded` INTEGER NOT NULL, `status` INTEGER NOT NULL, `edited` INTEGER NOT NULL, `starred` INTEGER NOT NULL, `localPath` TEXT, PRIMARY KEY(`jid`, `id`))",
+        "fields": [
+          {
+            "fieldPath": "jid",
+            "columnName": "jid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromMe",
+            "columnName": "fromMe",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ts",
+            "columnName": "ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sender",
+            "columnName": "sender",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "push",
+            "columnName": "push",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "meta",
+            "columnName": "meta",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "raw",
+            "columnName": "raw",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quoteId",
+            "columnName": "quoteId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quoteSender",
+            "columnName": "quoteSender",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quoteKind",
+            "columnName": "quoteKind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "quoteText",
+            "columnName": "quoteText",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mentions",
+            "columnName": "mentions",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "forwarded",
+            "columnName": "forwarded",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "edited",
+            "columnName": "edited",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "starred",
+            "columnName": "starred",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localPath",
+            "columnName": "localPath",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "jid",
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_msgs_jid_ts_id",
+            "unique": false,
+            "columnNames": [
+              "jid",
+              "ts",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_msgs_jid_ts_id` ON `${TABLE_NAME}` (`jid`, `ts`, `id`)"
+          }
+        ]
+      },
+      {
+        "tableName": "chats",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`jid` TEXT NOT NULL, `name` TEXT, `pinned` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `mutedUntil` INTEGER NOT NULL, `unread` INTEGER NOT NULL, `markedUnread` INTEGER NOT NULL, `readUpTo` INTEGER NOT NULL, `size` INTEGER NOT NULL, `lastTs` INTEGER NOT NULL, `lastId` TEXT, `lastKind` TEXT, `lastText` TEXT, `lastFromMe` INTEGER NOT NULL, `lastSender` TEXT, `lastStatus` INTEGER NOT NULL, PRIMARY KEY(`jid`))",
+        "fields": [
+          {
+            "fieldPath": "jid",
+            "columnName": "jid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pinned",
+            "columnName": "pinned",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archived",
+            "columnName": "archived",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mutedUntil",
+            "columnName": "mutedUntil",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unread",
+            "columnName": "unread",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "markedUnread",
+            "columnName": "markedUnread",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "readUpTo",
+            "columnName": "readUpTo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastTs",
+            "columnName": "lastTs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastId",
+            "columnName": "lastId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastKind",
+            "columnName": "lastKind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastText",
+            "columnName": "lastText",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastFromMe",
+            "columnName": "lastFromMe",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSender",
+            "columnName": "lastSender",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastStatus",
+            "columnName": "lastStatus",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "jid"
+          ]
+        }
+      },
+      {
+        "tableName": "contacts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`jid` TEXT NOT NULL, `name` TEXT, `notify` TEXT, `lid` TEXT, PRIMARY KEY(`jid`))",
+        "fields": [
+          {
+            "fieldPath": "jid",
+            "columnName": "jid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "notify",
+            "columnName": "notify",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lid",
+            "columnName": "lid",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "jid"
+          ]
+        }
+      },
+      {
+        "tableName": "reactions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`jid` TEXT NOT NULL, `msgId` TEXT NOT NULL, `sender` TEXT NOT NULL, `emoji` TEXT NOT NULL, `ts` INTEGER NOT NULL, PRIMARY KEY(`jid`, `msgId`, `sender`))",
+        "fields": [
+          {
+            "fieldPath": "jid",
+            "columnName": "jid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "msgId",
+            "columnName": "msgId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sender",
+            "columnName": "sender",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "emoji",
+            "columnName": "emoji",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ts",
+            "columnName": "ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "jid",
+            "msgId",
+            "sender"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reactions_jid_msgId",
+            "unique": false,
+            "columnNames": [
+              "jid",
+              "msgId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reactions_jid_msgId` ON `${TABLE_NAME}` (`jid`, `msgId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "avatars",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`jid` TEXT NOT NULL, `path` TEXT, `picId` TEXT, `checkedAt` INTEGER NOT NULL, PRIMARY KEY(`jid`))",
+        "fields": [
+          {
+            "fieldPath": "jid",
+            "columnName": "jid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "picId",
+            "columnName": "picId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "checkedAt",
+            "columnName": "checkedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "jid"
+          ]
+        }
+      },
+      {
+        "tableName": "fav_sounds",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mp3` TEXT NOT NULL, `title` TEXT NOT NULL, `color` TEXT, `addedAt` INTEGER NOT NULL, PRIMARY KEY(`mp3`))",
+        "fields": [
+          {
+            "fieldPath": "mp3",
+            "columnName": "mp3",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "addedAt",
+            "columnName": "addedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "mp3"
+          ]
+        }
+      },
+      {
+        "tableName": "recent_sounds",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mp3` TEXT NOT NULL, `title` TEXT NOT NULL, `color` TEXT, `usedAt` INTEGER NOT NULL, PRIMARY KEY(`mp3`))",
+        "fields": [
+          {
+            "fieldPath": "mp3",
+            "columnName": "mp3",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usedAt",
+            "columnName": "usedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "mp3"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6e1d3cd160b2237c4da97a1465666d50')"
+    ]
+  }
+}
