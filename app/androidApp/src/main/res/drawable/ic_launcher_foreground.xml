@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A speech drop with sound bars. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M54,28c-14.4,0 -26,10.3 -26,23.5c0,7.2 3.5,13.6 9,17.9l-2.5,9.6l10.2,-5.6c2.9,0.9 6,1.4 9.3,1.4c14.4,0 26,-10.3 26,-23.3S68.4,28 54,28z" />
+    <path android:fillColor="#0A7D68" android:pathData="M40,47h4v9h-4z" />
+    <path android:fillColor="#0A7D68" android:pathData="M47,41h4v21h-4z" />
+    <path android:fillColor="#E2553A" android:pathData="M54,36h4v31h-4z" />
+    <path android:fillColor="#0A7D68" android:pathData="M61,43h4v17h-4z" />
+    <path android:fillColor="#0A7D68" android:pathData="M68,48h4v7h-4z" />
+</vector>
