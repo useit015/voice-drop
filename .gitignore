@@ -1,4 +1,21 @@
-auth/
-cache/
-data/
-node_modules/
+.DS_Store
+
+# POC runtime state
+poc/auth/
+poc/cache/
+poc/data/
+poc/node_modules/
+
+# Android / Gradle
+app/.gradle/
+app/.kotlin/
+app/build/
+app/*/build/
+app/local.properties
+app/libs/engine.aar
+app/libs/engine-sources.jar
+*.iml
+.idea/
+
+# POC runtime data written at the old location
+/data/
